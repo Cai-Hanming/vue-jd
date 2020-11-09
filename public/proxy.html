@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+
+  <script type="text/javascript">
+    const observer = new Set();
+    observer.add((key) => console.log(`执行观察者1：${key} 的值发生了变化`));
+    observer.add((key) => console.log(`执行观察者2：${key} 的值发生了变化`));
+
+    // 定义 observable函数
+    // 该函数返回一个原始对象的 Proxy 代理，拦截赋值操作，并触发观察者的各个函数。
+    const observable = obj => new Proxy(obj, {
+      set(target, key, value, receiver) {
+          if (target[key] === value) return;
+          // 执行观察者函数集
+          observer.forEach(fn => fn(key));
+          // 赋值并返回
+          return Reflect.set(target, key, value, receiver);
+      },
+      get(target, key) {
+          console.log(`用户读取了 ${key} 的值`);
+          return target[key];
+      }
+    });
+
+    // 测试 观察目标
+    let person = observable({name: 'Lucy', age: 20});
+  </script>
+
+</body>
+</html>
